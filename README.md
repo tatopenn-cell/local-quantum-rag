@@ -1,3 +1,5 @@
+<img src="assets/tao.svg" width="72" height="72" align="right" alt="quantum-rag logo">
+
 # quantum-rag
 
 A small, local, hybrid RAG (retrieval-augmented generation) tool for grounding technical conversations in your own PDFs and notes — no server, no vector database, no cloud API calls except downloading the (open) embedding/reranker models once.
@@ -60,3 +62,8 @@ index/<collection>/                    # built index (not tracked; regenerate wi
 ```
 
 No papers or built indexes ship with this repo — bring your own sources.
+
+## Documentation
+
+- [Operating constraints of an LLM agent working with this tool](docs/operational_constraints.md) — the Context Engineering / LLMOps discipline behind how an agent's token budget, memory, and tool conventions actually activate across a session.
+- [Case study: a context-reload trigger gap, found and fixed](docs/context_engineering_case_study.md) — a concrete incident write-up, grounded in the current Context Engineering literature.
