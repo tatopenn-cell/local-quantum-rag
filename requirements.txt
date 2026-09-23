@@ -1,4 +1,4 @@
-PyMuPDF
-numpy
-scikit-learn
-sentence-transformers
+PyMuPDF==1.28.0
+numpy==2.4.6
+scikit-learn==1.9.0
+sentence-transformers==6.1.0

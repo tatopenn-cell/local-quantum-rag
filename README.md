@@ -12,6 +12,16 @@ A small, local, hybrid RAG (retrieval-augmented generation) tool for grounding t
 
 Built to stop an AI assistant from hallucinating citations: index your own real papers, then query them directly, or feed the retrieved passages back into whatever AI you're using as grounding context.
 
+## Why "atomic," not just "quantum"
+
+The name comes from the author's original domain, quantum computing — not a metaphor. But the design philosophy that grew around the code is genuinely atomic, in three specific, literal senses:
+
+- **Isolated knowledge spaces.** Documents live in separate `papers/<collection>/` folders by design, never merged. One topic's vocabulary never dilutes another's retrieval.
+- **Millimetric context control.** Instead of handing an AI a whole document, the pipeline slices it into small chunks and serves only the exact fragment a query needs — nothing more spent than necessary.
+- **Indivisible execution steps.** The verification discipline this tool exists to support (see *Draft and Verification* below) forces one step at a time, in order, with no room for an AI to improvise past what was asked.
+
+Cutting a workflow down to its smallest atomic units is exactly what removes the room an AI needs to invent something.
+
 ## Also: a documented method, not just a tool
 
 The code here is small on purpose. What this repository actually holds, beyond `build_index.py` and `query.py`, is the working method built around them for doing AI-assisted scientific research without the AI inventing its sources:
@@ -39,20 +49,37 @@ There's also an **exact-match mode** (`--exact`) that does plain substring/regex
 ## Install
 
 ```bash
-pip install -r requirements.txt
+pip install -e .
 ```
+
+Or without installing, just the pinned dependencies: `pip install -r requirements.txt`.
+
+## Try it without your own papers first
+
+`examples/quickstart/` ships two short, original (not copied from anywhere) documents specifically so you can try the whole pipeline immediately:
+
+```bash
+cp -r examples/quickstart papers/quickstart
+python build_index.py --collection quickstart
+python query.py --collection quickstart "why does semantic search sometimes miss a specific fact"
+python query.py --collection quickstart --exact "the answer is 42 kelvin"
+```
+
+(`tests/test_quickstart_smoke.py` runs this exact flow, with the real models, as part of CI.)
 
 ## Usage
 
 ```bash
-# build all collections found under papers/
+# build all collections found under papers/ (or use the installed console scripts below)
 python build_index.py
+quantum-rag-build   # same thing, after `pip install -e .`
 
 # build just one
 python build_index.py --collection my_topic
 
 # semantic search (hybrid retrieval + cross-encoder rerank)
 python query.py --collection my_topic "your question here"
+quantum-rag-query --collection my_topic "your question here"   # same thing, installed
 
 # search every collection
 python query.py --collection all "your question here"
