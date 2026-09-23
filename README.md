@@ -2,6 +2,11 @@
 
 # quantum-rag
 
+[![CI](https://github.com/tatopenn-cell/quantum-rag/actions/workflows/ci.yml/badge.svg)](https://github.com/tatopenn-cell/quantum-rag/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/tatopenn-cell/quantum-rag/branch/main/graph/badge.svg)](https://codecov.io/gh/tatopenn-cell/quantum-rag)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
+[![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
+
 A small, local, hybrid RAG (retrieval-augmented generation) tool for grounding technical conversations in your own PDFs and notes — no server, no vector database, no cloud API calls except downloading the (open) embedding/reranker models once.
 
 Built to stop an AI assistant from hallucinating citations: index your own real papers, then query them directly, or feed the retrieved passages back into whatever AI you're using as grounding context.
