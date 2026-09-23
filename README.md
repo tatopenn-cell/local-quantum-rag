@@ -6,6 +6,7 @@
 [![codecov](https://codecov.io/gh/tatopenn-cell/quantum-rag/branch/main/graph/badge.svg)](https://codecov.io/gh/tatopenn-cell/quantum-rag)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22914813.svg)](https://doi.org/10.5281/zenodo.22914813)
 
 A small, local, hybrid RAG (retrieval-augmented generation) tool for grounding technical conversations in your own PDFs and notes — no server, no vector database, no cloud API calls except downloading the (open) embedding/reranker models once.
 

@@ -10,12 +10,16 @@ abstract: >
   combining TF-IDF, dense bi-encoder retrieval, cross-encoder
   reranking, and exact-match search over local PDF/Markdown corpora.
 license: MIT
-preferred-citation:
-  type: software
-  title: "Dense-Evolution-Discovery"
-  authors:
-    - name: "Salvatore Pennacchio"
-  repository-code: "https://github.com/tatopenn-cell/Dense-Evolution-Discovery"
-  notes: >
-    quantum-rag is the retrieval tool used throughout Dense-Evolution-Discovery's
-    research notes; its archival citation record (Zenodo DOI) lives there.
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.22914813
+    description: Archived release v0.1.0 on Zenodo
+references:
+  - type: software
+    title: "Dense-Evolution-Discovery"
+    authors:
+      - name: "Salvatore Pennacchio"
+    repository-code: "https://github.com/tatopenn-cell/Dense-Evolution-Discovery"
+    notes: >
+      quantum-rag is the retrieval tool used throughout Dense-Evolution-Discovery's
+      research notes.
