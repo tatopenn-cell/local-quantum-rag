@@ -11,6 +11,15 @@ A small, local, hybrid RAG (retrieval-augmented generation) tool for grounding t
 
 Built to stop an AI assistant from hallucinating citations: index your own real papers, then query them directly, or feed the retrieved passages back into whatever AI you're using as grounding context.
 
+## Also: a documented method, not just a tool
+
+The code here is small on purpose. What this repository actually holds, beyond `build_index.py` and `query.py`, is the working method built around them for doing AI-assisted scientific research without the AI inventing its sources:
+
+- **How grounding is enforced** — the rule that every technical claim passes through this retrieval layer before being written down, and how that rule is kept active across an AI agent's sessions instead of quietly lapsing (see *The Reload Gap* below).
+- **How the work itself is structured** — a separate methodology for splitting AI-assisted development into a free, divergent drafting phase and a paid, convergent verification phase, with the literature it happens to converge with.
+
+Read together, the code and the docs are one artifact: a small RAG tool plus a record of the process discipline that makes AI-assisted research results trustworthy rather than merely plausible.
+
 ## How it works
 
 1. Drop PDFs, Markdown, or text files into `papers/<collection>/`.
@@ -70,7 +79,7 @@ No papers or built indexes ship with this repo — bring your own sources.
 
 ## Documentation
 
-- **[The Reload Gap](https://claude.ai/artifact/QvAJ5UmaCsLcV6SEnrwSCZ)** — the case study and the operating-constraints framework, as a single page.
+- **[The Reload Gap](https://claude.ai/artifact/QvAJ5UmaCsLcV6SEnrwSCZ)** — the full method in one page: the operating-constraints framework, the incident that motivated it, and the draft/verification methodology below.
 - [Operating constraints of an LLM agent working with this tool](docs/operational_constraints.md) — same content as source Markdown, the Context Engineering / LLMOps discipline behind how an agent's token budget, memory, and tool conventions actually activate across a session.
 - [Case study: a context-reload trigger gap, found and fixed](docs/context_engineering_case_study.md) — same content as source Markdown, a concrete incident write-up grounded in the current Context Engineering literature.
 
