@@ -107,7 +107,6 @@ No papers or built indexes ship with this repo — bring your own sources.
 
 ## Documentation
 
-- **[The Reload Gap](https://claude.ai/artifact/QvAJ5UmaCsLcV6SEnrwSCZ)** — the full method in one page: the operating-constraints framework, the incident that motivated it, and the draft/verification methodology below.
 - [Operating constraints of an LLM agent working with this tool](docs/operational_constraints.md) — same content as source Markdown, the Context Engineering / LLMOps discipline behind how an agent's token budget, memory, and tool conventions actually activate across a session.
 - [Case study: a context-reload trigger gap, found and fixed](docs/context_engineering_case_study.md) — same content as source Markdown, a concrete incident write-up grounded in the current Context Engineering literature.
 
