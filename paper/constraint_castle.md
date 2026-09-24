@@ -39,6 +39,14 @@ Two existing traditions justify why this remains effective as it grows, and why 
 
 The substitution claim follows from combining the two: an agent operating inside a growing, specific constraint castle catches the same class of error that unverified parallel agents are meant to catch via redundancy or voting, because the castle already encodes, as retained cases, the specific failures a swarm would otherwise have to rediscover independently and unreliably, in every member, every time.
 
+### 3.1 Why Constraints Must Be Co-Authored, Not Inferred
+
+Polanyi (1966) describes tacit knowledge as knowledge its holder cannot fully articulate — "we know more than we can tell" — and that therefore cannot be recovered by an outside observer no matter how closely that observer examines the visible artifact alone. This bears directly on the castle described above: a constraint derived only from what is externally observable (a bug, a missing test, a broken link) is necessarily incomplete, because part of what makes one specific person's working method fast and effective is exactly this tacit component — preferences, shortcuts, and judgment calls an AI has no independent channel to discover, however capable it is at pattern-matching over the artifact in front of it.
+
+We observed this directly, from the inside, while producing this paper: at several points the correct fix to a document or a design decision could only be reached by exact dictation from the human author, not by the assisting AI's own inference from context — consistent with Polanyi's claim, not merely compatible with it, since it was the human's own stated preference and prior judgment, unavailable to the AI by any other channel, that resolved the case each time. This clarifies the division of labor implied by Section 3: the AI executes reliably once a constraint is written and surfaces candidate failures for the human to judge; the constraint's content is co-authored, and its strength depends on tacit, personal knowledge that only the human contributes.
+
+*A first-person account of how this played out over the five months in which the author, starting without a quantum-computing background, built the four repositories this paper draws on, is the human author's own history to add — pending in this draft.*
+
 ## 4. Case Studies
 
 All four case studies below are drawn from real, existing repositories, not constructed for this paper. Case 4.1 was published independently, as its own case-study document, before this paper was drafted.
@@ -97,3 +105,4 @@ Across two independently developed open-source projects, we find the same patter
 11. J. P. Guilford, *The Structure of Intellect*, Psychological Bulletin, Technical Report 4 (1956).
 12. Design Council (UK), *Eleven Lessons: A Study of the Design Process — The Double Diamond* (2005).
 13. T. Baumgratz, M. Cramer, M. B. Plenio, *Quantifying Coherence*, Phys. Rev. Lett. 113, 140401 (2014). [background for Section 4.2's coherence-based signal, cited for completeness]
+14. M. Polanyi, *The Tacit Dimension*, University of Chicago Press (1966).
