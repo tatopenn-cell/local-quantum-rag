@@ -17,6 +17,13 @@ dependencies = [
     "sentence-transformers>=3.0",
 ]
 
+[project.optional-dependencies]
+docs = [
+    "mkdocs>=1.6.0",
+    "mkdocs-material>=9.5.0",
+    "mkdocs-include-markdown-plugin>=6.0.0",
+]
+
 [project.urls]
 Homepage = "https://github.com/tatopenn-cell/local-quantum-rag"
 Repository = "https://github.com/tatopenn-cell/local-quantum-rag"
