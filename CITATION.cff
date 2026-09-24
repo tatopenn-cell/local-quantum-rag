@@ -1,10 +1,10 @@
 cff-version: 1.2.0
 message: "If you use this software, please cite it as below."
-title: "quantum-rag"
+title: "local-quantum-rag"
 type: software
 authors:
   - name: "Salvatore Pennacchio"
-repository-code: "https://github.com/tatopenn-cell/quantum-rag"
+repository-code: "https://github.com/tatopenn-cell/local-quantum-rag"
 abstract: >
   A small, local, hybrid RAG (retrieval-augmented generation) tool
   combining TF-IDF, dense bi-encoder retrieval, cross-encoder

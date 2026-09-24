@@ -3,7 +3,7 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "quantum-rag"
+name = "local-quantum-rag"
 version = "0.1.0"
 description = "A small, local, hybrid RAG tool for grounding technical conversations in your own PDFs and notes"
 readme = "README.md"
@@ -18,12 +18,12 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/tatopenn-cell/quantum-rag"
-Repository = "https://github.com/tatopenn-cell/quantum-rag"
+Homepage = "https://github.com/tatopenn-cell/local-quantum-rag"
+Repository = "https://github.com/tatopenn-cell/local-quantum-rag"
 
 [project.scripts]
-quantum-rag-build = "build_index:main"
-quantum-rag-query = "query:main"
+local-quantum-rag-build = "build_index:main"
+local-quantum-rag-query = "query:main"
 
 [tool.setuptools]
 py-modules = ["build_index", "query"]

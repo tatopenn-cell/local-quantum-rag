@@ -1,9 +1,9 @@
-<img src="assets/tao.svg" width="72" height="72" align="right" alt="quantum-rag logo">
+<img src="assets/tao.svg" width="72" height="72" align="right" alt="local-quantum-rag logo">
 
-# quantum-rag
+# local-quantum-rag
 
-[![CI](https://github.com/tatopenn-cell/quantum-rag/actions/workflows/ci.yml/badge.svg)](https://github.com/tatopenn-cell/quantum-rag/actions/workflows/ci.yml)
-[![codecov](https://codecov.io/gh/tatopenn-cell/quantum-rag/branch/main/graph/badge.svg)](https://codecov.io/gh/tatopenn-cell/quantum-rag)
+[![CI](https://github.com/tatopenn-cell/local-quantum-rag/actions/workflows/ci.yml/badge.svg)](https://github.com/tatopenn-cell/local-quantum-rag/actions/workflows/ci.yml)
+[![codecov](https://codecov.io/gh/tatopenn-cell/local-quantum-rag/branch/main/graph/badge.svg)](https://codecov.io/gh/tatopenn-cell/local-quantum-rag)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22914813.svg)](https://doi.org/10.5281/zenodo.22914813)
@@ -72,14 +72,14 @@ python query.py --collection quickstart --exact "the answer is 42 kelvin"
 ```bash
 # build all collections found under papers/ (or use the installed console scripts below)
 python build_index.py
-quantum-rag-build   # same thing, after `pip install -e .`
+local-quantum-rag-build   # same thing, after `pip install -e .`
 
 # build just one
 python build_index.py --collection my_topic
 
 # semantic search (hybrid retrieval + cross-encoder rerank)
 python query.py --collection my_topic "your question here"
-quantum-rag-query --collection my_topic "your question here"   # same thing, installed
+local-quantum-rag-query --collection my_topic "your question here"   # same thing, installed
 
 # search every collection
 python query.py --collection all "your question here"

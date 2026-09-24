@@ -3,8 +3,8 @@
 ## Setup
 
 ```bash
-git clone https://github.com/tatopenn-cell/quantum-rag.git
-cd quantum-rag
+git clone https://github.com/tatopenn-cell/local-quantum-rag.git
+cd local-quantum-rag
 pip install -e .
 pip install pytest pytest-cov
 ```
