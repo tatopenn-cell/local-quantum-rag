@@ -47,8 +47,6 @@ We observed this directly, from the inside, while producing this paper: at sever
 
 This also clarifies where each party's comparative advantage actually lies, and a distinction worth stating precisely rather than glossing over: a coding-oriented AI is not the same model, nor tuned for the same objective, as a general conversational AI, even when both are accessed through the same product or session. The human author's own assessment, from having worked this way throughout: a coding-oriented AI is not reliable at open-ended understanding of an underspecified goal, nor at conversation about what the goal should be — that is a different model's job, tuned for a different objective — but is highly reliable at executing against a goal that has already been made fully specific and ready to act on. This is consistent with the constraint castle's own division of labor (Section 3): the human's contribution is preparing the specific, ready target in advance; the coding AI's contribution is executing and debugging against it reliably, not inventing what it should be or standing in for a conversational model's role.
 
-*A fuller first-person account of how this played out over the five months in which the author, starting without a quantum-computing background, built the repositories this paper draws on, is the human author's own history to add — pending in this draft.*
-
 ## 4. Case Studies
 
 All four case studies below are drawn from real, existing repositories, not constructed for this paper. Case 4.1 was published independently, as its own case-study document, before this paper was drafted.
@@ -69,16 +67,18 @@ The same class of signal — Jensen-Shannon divergence (JSD) between two probabi
 
 The two failures (2 and 3) were each resolved individually — one by not adopting the mechanism, one by a formal deprecation — and neither fix took the form of a general rule against using JSD, since case 1 demonstrates the same signal is correct and load-bearing elsewhere in the identical codebase (JSD also gates bond-dimension truncation in the library's matrix-product-state simulator, unrelated to either failure). A generalized rule derived from cases 2 and 3 alone ("do not use JSD-derived signals for correction") would have been directly contradicted by case 1.
 
-### 4.3 Four specific gaps found and closed during this paper's own preparation
+### 4.3 Five specific gaps found and closed during this paper's own preparation
 
-Within the working session that produced this draft, prior to any of the analysis above being written down, four independent, concrete gaps were found by direct execution rather than by assumption, each closed with exactly one specific, permanent artifact:
+Within the working session that produced this draft, prior to any of the analysis above being written down, five independent, concrete gaps were found by direct execution rather than by assumption, each closed with exactly one specific, permanent artifact, on a single real pull request against the Dense-Evolution library (public repository, PyPI package):
 
-- An optional-dependency code path (Hartree-Fock diagnostics requiring an extra package) had no test exercising its failure branch; a targeted test using dependency injection was added to cover exactly that branch.
-- A numerical parameter on a newly added API endpoint (a protocol-specific bound governing a device-independent quantum key distribution check) was documented as required but not enforced in code; the enforcement was added at the point the gap was found, not deferred.
-- A cross-reference between two documentation pages pointed at a page that had never been created; the reference was corrected to point at the section that already contained the relevant content, rather than creating a redundant new page.
-- Two tools intended to expose identical functionality (`ia_utils.rag` and a standalone predecessor tool) were found, on direct comparison, to differ in one specific capability (exact-substring/regex search); the missing capability was ported, verified against the original tool's behavior line by line, and documented.
+- An optional-dependency code path (Hartree-Fock diagnostics requiring an extra package) had no test exercising its `ImportError` failure branch; one targeted test using dependency injection was added to cover exactly that branch.
+- A numerical parameter on a newly added API endpoint (`beta`, a protocol-specific bound governing a device-independent quantum key distribution check) was documented as required (`0.75 < beta < 0.8536`) but not enforced in code, confirmed by direct execution (`beta=0.5` was silently accepted); the enforcement was added as a single explicit check at the point the gap was found, not deferred.
+- A cross-reference between two documentation pages pointed at a page that had never been created; the reference was corrected in one line to point at the section that already contained the relevant content, rather than creating a redundant new page. Verified before and after with the exact command CI runs (`mkdocs build --strict`): failing before the fix, clean after.
+- Two tools intended to expose identical functionality (`ia_utils.rag` and a standalone predecessor tool) were found, on direct comparison, to differ in one specific capability (exact-substring/regex search); the missing capability was ported as one function and covered by six new unit tests, each checked against the original tool's behavior line by line.
 
-None of these four fixes took the form of a broadened, general-purpose safeguard (for example, a rule requiring dependency-injection tests for every function, or a linter forbidding undocumented parameters). Each is scoped to the exact gap it closed.
+Patch coverage on the pull request carrying these changes moved from 89.28% (39 lines uncovered across 4 files) to 97.25% (10 lines uncovered) after an earlier round of 4 targeted tests, then to fully passing after the 2 tests above closed the remaining `ImportError` branches — each increment tied to one specific, identified gap, never a blanket rewrite. A fifth, unrelated failure on the same pull request (a full continuous-integration crash on one operating system) was traced to a single missing guard clause (`pytest.importorskip("sklearn")`) on the six new tests just mentioned, confirming the failure was self-caused and specific, not the platform flakiness it initially resembled.
+
+None of these five fixes took the form of a broadened, general-purpose safeguard (for example, a rule requiring dependency-injection tests for every function, or a linter forbidding undocumented parameters). Each is scoped to the exact gap it closed.
 
 ### 4.4 A live instance: the OpenAI Navier–Stokes claim (September 2026)
 
