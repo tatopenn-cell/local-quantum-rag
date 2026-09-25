@@ -51,6 +51,7 @@ plugins:
 nav:
   - Home: index.md
   - Draft and Verification methodology: draft_verification_methodology.md
+  - "Workflows 3-4: Discovery & Evolving Software repos": verification_layers.md
   - Operational constraints: operational_constraints.md
   - Case study — the Reload Gap: context_engineering_case_study.md
   - Changelog: changelog.md
