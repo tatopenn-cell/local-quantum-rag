@@ -622,4 +622,3 @@ Two observations close the paper. First, the asymmetric documentation of the arc
 9. *LLM Agents Are Latent Context Managers: Eliciting Self-Managed Context via a Proprioceptive Dashboard*, arXiv:2606.30005 (2026). *(preprint)*
 10. V. Karpukhin et al., *Dense Passage Retrieval for Open-Domain Question Answering*, arXiv:2004.04906 (2020).
 
-If you want, I can also produce a LaTeX version (arXiv-ready, with proper section structure, bibliography, and figure environments), or a shorter conference-style version (~6 pages) if you're targeting a workshop rather than arXiv.
