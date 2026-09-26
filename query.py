@@ -90,16 +90,20 @@ def search(query: str, collection: str, top: int, rerank: bool, pool: int, sourc
         if not allowed.any():
             print(f"[{collection}] no chunks with source containing {source!r}")
             return
-        cosine_scores = np.where(allowed, cosine_scores, -np.inf)
 
     tfidf_order = cosine_scores.argsort()[::-1]
+    if allowed is not None:
+        # Drop disallowed indices entirely (not just deprioritize them) so a
+        # --source filter never pads results out to `top` with non-matches.
+        tfidf_order = tfidf_order[allowed[tfidf_order]]
 
     if rerank and embeddings is not None:
         query_emb = get_embedder().encode([query], normalize_embeddings=True)[0]
         dense_scores = embeddings @ query_emb
+        dense_pool = dense_scores.argsort()[::-1]
         if allowed is not None:
-            dense_scores = np.where(allowed, dense_scores, -np.inf)
-        dense_pool = dense_scores.argsort()[::-1][:pool]
+            dense_pool = dense_pool[allowed[dense_pool]]
+        dense_pool = dense_pool[:pool]
         candidate_idx = sorted(set(tfidf_order[:pool]) | set(dense_pool))
     elif rerank:
         candidate_idx = list(tfidf_order[:pool])

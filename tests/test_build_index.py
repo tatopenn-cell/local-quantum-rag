@@ -3,6 +3,7 @@ from pathlib import Path
 from unittest.mock import patch
 
 import numpy as np
+import pytest
 
 sys.path.insert(0, str(Path(__file__).parent.parent))
 
@@ -74,6 +75,13 @@ def test_build_collection_writes_index_files(tmp_path, monkeypatch):
     assert (out_dir / "vectorizer.pkl").exists()
     assert (out_dir / "matrix.pkl").exists()
     assert (out_dir / "embeddings.npy").exists()
+
+
+def test_build_collection_missing_papers_dir_raises(tmp_path, monkeypatch):
+    monkeypatch.setattr(bi, "PAPERS_DIR", tmp_path / "papers")
+    monkeypatch.setattr(bi, "INDEX_DIR", tmp_path / "index")
+    with pytest.raises(SystemExit, match="does not exist"):
+        bi.build_collection("ghost")
 
 
 def test_build_collection_empty_dir_writes_nothing(tmp_path, monkeypatch, capsys):
