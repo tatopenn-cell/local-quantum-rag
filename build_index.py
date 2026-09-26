@@ -29,6 +29,8 @@ Usage:
 import argparse
 import json
 import re
+import shutil
+import tempfile
 from pathlib import Path
 
 import fitz  # PyMuPDF
@@ -63,18 +65,24 @@ _LIGATURES = {
 
 def extract_text(doc_path: Path) -> str:
     if doc_path.suffix.lower() in (".md", ".txt"):
-        return doc_path.read_text(encoding="utf-8").strip()
+        text = doc_path.read_text(encoding="utf-8")
+    else:
+        doc = fitz.open(doc_path)
+        # sort=True reorders spans into natural reading order (top-to-bottom,
+        # column-by-column) instead of raw geometric position -- without it,
+        # a two-column paper comes back with left/right column lines interlaced.
+        text = "\n".join(page.get_text(sort=True) for page in doc)
+        doc.close()
 
-    doc = fitz.open(doc_path)
-    text = "\n".join(page.get_text() for page in doc)
-    doc.close()
     # Typographic ligatures (fi/fl/ffi/...) come through as single Unicode
     # codepoints that break both plain-ASCII printing on Windows consoles
     # and TF-IDF tokenization (e.g. "e?cient" instead of "efficient") --
     # expand them to real ASCII before anything else touches this text.
+    # Applies to .md/.txt too: a note exported from a PDF or LaTeX source
+    # can carry the same ligatures.
     for lig, expansion in _LIGATURES.items():
         text = text.replace(lig, expansion)
-    # Collapse the PDF-extraction whitespace mess (hyphenated line wraps,
+    # Collapse the extraction whitespace mess (hyphenated line wraps,
     # repeated blank lines) into something more chunk-friendly.
     text = re.sub(r"-\n(?=[a-z])", "", text)   # de-hyphenate wrapped words
     text = re.sub(r"\n{2,}", "\n\n", text)
@@ -82,25 +90,51 @@ def extract_text(doc_path: Path) -> str:
     return text.strip()
 
 
+_SENTENCE_SPLIT = re.compile(r"(?<=[.!?])\s+(?=[A-Z0-9])")
+
+
 def chunk_text(text: str, source: str):
+    # Split into paragraph/sentence units first, then pack units into chunks
+    # up to CHUNK_SIZE_CHARS -- this never cuts a chunk mid-sentence (a fixed
+    # character window does, which can split a formula or a claim in half).
+    units = []
+    for para in re.split(r"\n{2,}", text):
+        para = para.strip()
+        if not para:
+            continue
+        if len(para) <= CHUNK_SIZE_CHARS:
+            units.append(para)
+        else:
+            units.extend(s.strip() for s in _SENTENCE_SPLIT.split(para) if s.strip())
+
     chunks = []
-    start = 0
-    n = len(text)
-    while start < n:
-        end = min(start + CHUNK_SIZE_CHARS, n)
-        chunk = text[start:end].strip()
-        if chunk:
-            chunks.append({"source": source, "text": chunk})
-        if end == n:
-            break
-        start = end - CHUNK_OVERLAP_CHARS
+    buf_units, buf_len = [], 0
+    for unit in units:
+        if buf_units and buf_len + 1 + len(unit) > CHUNK_SIZE_CHARS:
+            chunks.append({"source": source, "text": " ".join(buf_units)})
+            # Overlap: carry whole trailing sentences (never a partial one)
+            # into the next chunk, up to CHUNK_OVERLAP_CHARS.
+            carry, carry_len = [], 0
+            for u in reversed(buf_units):
+                if carry_len + len(u) > CHUNK_OVERLAP_CHARS:
+                    break
+                carry.insert(0, u)
+                carry_len += len(u) + 1
+            buf_units, buf_len = carry, carry_len
+        buf_units.append(unit)
+        buf_len += len(unit) + 1
+    if buf_units:
+        chunks.append({"source": source, "text": " ".join(buf_units)})
     return chunks
 
 
 def build_collection(name: str):
     papers_dir = PAPERS_DIR / name
     index_dir = INDEX_DIR / name
-    index_dir.mkdir(parents=True, exist_ok=True)
+    if not papers_dir.is_dir():
+        available = sorted(p.name for p in PAPERS_DIR.iterdir() if p.is_dir()) if PAPERS_DIR.is_dir() else []
+        raise SystemExit(f"[{name}] papers/{name}/ does not exist -- available collections: {available}")
+    INDEX_DIR.mkdir(parents=True, exist_ok=True)
 
     all_chunks = []
     doc_paths = sorted(
@@ -121,13 +155,20 @@ def build_collection(name: str):
     matrix = vectorizer.fit_transform(texts)
     embeddings = get_embedder().encode(texts, normalize_embeddings=True, show_progress_bar=False)
 
-    with open(index_dir / "chunks.json", "w", encoding="utf-8") as f:
+    # Build in a temp dir first, then swap it in with a single rename --
+    # a crash mid-write never leaves index/<name>/ with some files rebuilt
+    # and others stale (which load_collection could not otherwise detect).
+    tmp_dir = Path(tempfile.mkdtemp(prefix=f".{name}.", dir=INDEX_DIR))
+    with open(tmp_dir / "chunks.json", "w", encoding="utf-8") as f:
         json.dump(all_chunks, f, ensure_ascii=False, indent=2)
-    with open(index_dir / "vectorizer.pkl", "wb") as f:
+    with open(tmp_dir / "vectorizer.pkl", "wb") as f:
         pickle.dump(vectorizer, f)
-    with open(index_dir / "matrix.pkl", "wb") as f:
+    with open(tmp_dir / "matrix.pkl", "wb") as f:
         pickle.dump(matrix, f)
-    np.save(index_dir / "embeddings.npy", embeddings)
+    np.save(tmp_dir / "embeddings.npy", embeddings)
+    if index_dir.exists():
+        shutil.rmtree(index_dir)
+    tmp_dir.rename(index_dir)
 
     print(f"[{name}] Indexed {len(all_chunks)} chunks from {len(doc_paths)} documents -> index/{name}/\n")
 

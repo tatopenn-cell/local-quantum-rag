@@ -48,7 +48,12 @@ def get_embedder():
 
 def load_collection(name: str):
     index_dir = INDEX_DIR / name
-    with open(index_dir / "chunks.json", encoding="utf-8") as f:
+    chunks_path = index_dir / "chunks.json"
+    if not chunks_path.exists():
+        available = sorted(p.name for p in INDEX_DIR.iterdir() if p.is_dir()) if INDEX_DIR.is_dir() else []
+        raise SystemExit(f"[{name}] no index at index/{name}/ -- run build_index.py first. Available: {available}")
+
+    with open(chunks_path, encoding="utf-8") as f:
         chunks = json.load(f)
     with open(index_dir / "vectorizer.pkl", "rb") as f:
         vectorizer = pickle.load(f)
@@ -56,18 +61,44 @@ def load_collection(name: str):
         matrix = pickle.load(f)
     emb_path = index_dir / "embeddings.npy"
     embeddings = np.load(emb_path) if emb_path.exists() else None
+
+    if matrix.shape[0] != len(chunks) or (embeddings is not None and embeddings.shape[0] != len(chunks)):
+        raise SystemExit(
+            f"[{name}] index is inconsistent (chunks={len(chunks)}, matrix={matrix.shape[0]}, "
+            f"embeddings={'n/a' if embeddings is None else embeddings.shape[0]}) "
+            f"-- rebuild with: python build_index.py --collection {name}"
+        )
+
+    papers_dir = ROOT / "papers" / name
+    if papers_dir.is_dir():
+        newest_src = max((p.stat().st_mtime for p in papers_dir.iterdir()), default=0)
+        if newest_src > chunks_path.stat().st_mtime:
+            print(f"[{name}] warning: papers/{name}/ has files newer than the index -- "
+                  f"rebuild with: python build_index.py --collection {name}")
+
     return chunks, vectorizer, matrix, embeddings
 
 
-def search(query: str, collection: str, top: int, rerank: bool, pool: int):
+def search(query: str, collection: str, top: int, rerank: bool, pool: int, source: str = None):
     chunks, vectorizer, matrix, embeddings = load_collection(collection)
     query_vec = vectorizer.transform([query])
     cosine_scores = cosine_similarity(query_vec, matrix)[0]
+
+    allowed = None
+    if source:
+        allowed = np.array([source.lower() in c["source"].lower() for c in chunks])
+        if not allowed.any():
+            print(f"[{collection}] no chunks with source containing {source!r}")
+            return
+        cosine_scores = np.where(allowed, cosine_scores, -np.inf)
+
     tfidf_order = cosine_scores.argsort()[::-1]
 
     if rerank and embeddings is not None:
         query_emb = get_embedder().encode([query], normalize_embeddings=True)[0]
         dense_scores = embeddings @ query_emb
+        if allowed is not None:
+            dense_scores = np.where(allowed, dense_scores, -np.inf)
         dense_pool = dense_scores.argsort()[::-1][:pool]
         candidate_idx = sorted(set(tfidf_order[:pool]) | set(dense_pool))
     elif rerank:
@@ -76,7 +107,10 @@ def search(query: str, collection: str, top: int, rerank: bool, pool: int):
         candidate_idx = []
 
     if rerank and candidate_idx:
-        pairs = [(query, chunks[i]["text"][:1024]) for i in candidate_idx]
+        # Full chunk text, not a hand-cut [:1024] char slice: the cross-encoder's
+        # own tokenizer truncates on token boundaries (its real max_length), so a
+        # manual char cut only risked cutting a formula or word for no benefit.
+        pairs = [(query, chunks[i]["text"]) for i in candidate_idx]
         rerank_scores = get_reranker().predict(pairs)
         order = rerank_scores.argsort()[::-1][:top]
         top_idx = [candidate_idx[j] for j in order]
@@ -98,19 +132,22 @@ def search(query: str, collection: str, top: int, rerank: bool, pool: int):
         print(snippet)
 
 
-def search_exact(pattern: str, collection: str, regex: bool, max_hits: int, context: int):
+def search_exact(pattern: str, collection: str, regex: bool, max_hits: int, context: int, source: str = None) -> int:
     """Substring/regex search over a collection's raw chunk text -- no
     embedding, no reranker, no model download. Semantic search ranks by
     topical similarity, which can bury a short, specific, load-bearing
     phrase (an exact clause, a fixed parameter value, a named condition)
     under chunks that are merely more topically central. Use this when you
     already know roughly what wording you're looking for and semantic
-    search isn't surfacing it high enough."""
+    search isn't surfacing it high enough. Returns the number of hits printed,
+    so a caller can enforce a global --max-hits budget across collections."""
     chunks, _, _, _ = load_collection(collection)
     flags = 0 if regex else re.IGNORECASE
     compiled = re.compile(pattern if regex else re.escape(pattern), flags)
     hits = 0
     for i, chunk in enumerate(chunks):
+        if source and source.lower() not in chunk["source"].lower():
+            continue
         text = chunk["text"]
         m = compiled.search(text)
         if not m:
@@ -127,6 +164,7 @@ def search_exact(pattern: str, collection: str, regex: bool, max_hits: int, cont
             break
     if hits == 0:
         print(f"[{collection}] no exact match for {pattern!r}")
+    return hits
 
 
 def main():
@@ -145,20 +183,30 @@ def main():
         help="substring/regex search over raw chunk text instead of semantic search -- for finding a specific known phrase or value semantic ranking buries",
     )
     parser.add_argument("--regex", action="store_true", help="treat the query as a regex (only with --exact); default is a literal substring, case-insensitive")
-    parser.add_argument("--max-hits", type=int, default=10, help="stop after this many exact matches per collection")
+    parser.add_argument("--max-hits", type=int, default=10,
+                         help="stop after this many exact matches -- a global budget across collections when --collection all, per-collection otherwise")
     parser.add_argument("--context", type=int, default=300, help="characters of context to show around each exact match")
+    parser.add_argument("--source", help="restrict results to chunks whose source filename contains this (case-insensitive)")
     args = parser.parse_args()
+
+    if args.regex and not args.exact:
+        parser.error("--regex only makes sense together with --exact")
 
     if args.collection == "all":
         collections = sorted(p.name for p in INDEX_DIR.iterdir() if p.is_dir())
     else:
         collections = [args.collection]
 
-    for name in collections:
-        if args.exact:
-            search_exact(args.query, name, args.regex, args.max_hits, args.context)
-        else:
-            search(args.query, name, args.top, rerank=not args.no_rerank, pool=args.pool)
+    if args.exact:
+        remaining = args.max_hits
+        for name in collections:
+            if remaining <= 0:
+                print(f"[{name}] skipped -- global --max-hits {args.max_hits} budget already spent")
+                continue
+            remaining -= search_exact(args.query, name, args.regex, remaining, args.context, args.source)
+    else:
+        for name in collections:
+            search(args.query, name, args.top, rerank=not args.no_rerank, pool=args.pool, source=args.source)
 
 
 if __name__ == "__main__":
