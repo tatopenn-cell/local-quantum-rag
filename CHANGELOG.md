@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.2.1] — 2026-09-26
+
+- Fixed a real bug present in the tagged `0.2.0` release: `search()`'s `--source` filter masked disallowed chunks' scores to `-inf` instead of dropping them, so a query with `top` larger than the real number of matching chunks printed masked/garbage entries alongside the real match. Found via the coverage-driven tests added below, not by manual testing.
+- Added tests covering `build_collection`'s missing-papers-dir error, `load_collection`'s missing-index/inconsistent-shapes errors and stale-index warning, `search`/`search_exact`'s `--source` filtering, `search_exact`'s hit-count return, the `--regex`-without-`--exact` guard, and the global `--max-hits` budget across `--collection all` — none of this new `0.2.0` behavior had test coverage before.
+
 ## [0.2.0] — 2026-09-26
 
 - Fixed multi-column PDF extraction (`page.get_text(sort=True)`) — text from two-column papers no longer comes back with left/right columns interlaced.
