@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "local-quantum-rag"
-version = "0.1.0"
+version = "0.2.0"
 description = "A small, local, hybrid RAG tool for grounding technical conversations in your own PDFs and notes"
 readme = "README.md"
 license = { text = "MIT" }
