@@ -93,36 +93,55 @@ def extract_text(doc_path: Path) -> str:
 _SENTENCE_SPLIT = re.compile(r"(?<=[.!?])\s+(?=[A-Z0-9])")
 
 
+def _hard_slice(text: str):
+    # Character-window fallback for a span with no sentence boundary at all
+    # (e.g. a long run with no punctuation) -- still yields overlapping pieces
+    # instead of one oversized chunk.
+    pieces = []
+    start, n = 0, len(text)
+    while start < n:
+        end = min(start + CHUNK_SIZE_CHARS, n)
+        pieces.append(text[start:end])
+        if end == n:
+            break
+        start = end - CHUNK_OVERLAP_CHARS
+    return pieces
+
+
 def chunk_text(text: str, source: str):
-    # Split into paragraph/sentence units first, then pack units into chunks
-    # up to CHUNK_SIZE_CHARS -- this never cuts a chunk mid-sentence (a fixed
-    # character window does, which can split a formula or a claim in half).
-    units = []
+    # Pack paragraph/sentence units into chunks up to CHUNK_SIZE_CHARS -- this
+    # never cuts a chunk mid-sentence (a fixed character window does, which
+    # can split a formula or a claim in half). A unit with no sentence
+    # boundary inside it falls back to _hard_slice so it still gets split.
+    chunks = []
+    buf_units, buf_len = [], 0
     for para in re.split(r"\n{2,}", text):
         para = para.strip()
         if not para:
             continue
-        if len(para) <= CHUNK_SIZE_CHARS:
-            units.append(para)
-        else:
-            units.extend(s.strip() for s in _SENTENCE_SPLIT.split(para) if s.strip())
-
-    chunks = []
-    buf_units, buf_len = [], 0
-    for unit in units:
-        if buf_units and buf_len + 1 + len(unit) > CHUNK_SIZE_CHARS:
-            chunks.append({"source": source, "text": " ".join(buf_units)})
-            # Overlap: carry whole trailing sentences (never a partial one)
-            # into the next chunk, up to CHUNK_OVERLAP_CHARS.
-            carry, carry_len = [], 0
-            for u in reversed(buf_units):
-                if carry_len + len(u) > CHUNK_OVERLAP_CHARS:
-                    break
-                carry.insert(0, u)
-                carry_len += len(u) + 1
-            buf_units, buf_len = carry, carry_len
-        buf_units.append(unit)
-        buf_len += len(unit) + 1
+        sentences = [para] if len(para) <= CHUNK_SIZE_CHARS else (
+            [s.strip() for s in _SENTENCE_SPLIT.split(para) if s.strip()] or [para]
+        )
+        for sent in sentences:
+            if len(sent) > CHUNK_SIZE_CHARS:
+                if buf_units:
+                    chunks.append({"source": source, "text": " ".join(buf_units)})
+                    buf_units, buf_len = [], 0
+                chunks.extend({"source": source, "text": piece} for piece in _hard_slice(sent))
+                continue
+            if buf_units and buf_len + 1 + len(sent) > CHUNK_SIZE_CHARS:
+                chunks.append({"source": source, "text": " ".join(buf_units)})
+                # Overlap: carry whole trailing sentences (never a partial one)
+                # into the next chunk, up to CHUNK_OVERLAP_CHARS.
+                carry, carry_len = [], 0
+                for u in reversed(buf_units):
+                    if carry_len + len(u) > CHUNK_OVERLAP_CHARS:
+                        break
+                    carry.insert(0, u)
+                    carry_len += len(u) + 1
+                buf_units, buf_len = carry, carry_len
+            buf_units.append(sent)
+            buf_len += len(sent) + 1
     if buf_units:
         chunks.append({"source": source, "text": " ".join(buf_units)})
     return chunks

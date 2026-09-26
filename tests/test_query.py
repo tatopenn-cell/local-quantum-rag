@@ -101,9 +101,14 @@ def test_search_exact_respects_max_hits(fake_collection, capsys):
 def test_main_exact_flag_dispatches_to_search_exact(fake_collection, monkeypatch):
     monkeypatch.setattr(sys, "argv", ["query.py", "--collection", fake_collection, "--exact", "Kraus"])
     calls = []
-    monkeypatch.setattr(q, "search_exact", lambda *a: calls.append(a))
+
+    def fake_search_exact(*a):
+        calls.append(a)
+        return 0
+
+    monkeypatch.setattr(q, "search_exact", fake_search_exact)
     q.main()
-    assert calls == [("Kraus", fake_collection, False, 10, 300)]
+    assert calls == [("Kraus", fake_collection, False, 10, 300, None)]
 
 
 def test_main_default_dispatches_to_search(fake_collection, monkeypatch):
@@ -111,7 +116,7 @@ def test_main_default_dispatches_to_search(fake_collection, monkeypatch):
     calls = []
     monkeypatch.setattr(q, "search", lambda *a, **kw: calls.append((a, kw)))
     q.main()
-    assert calls == [(("some query", fake_collection, 3), {"rerank": True, "pool": q.DEFAULT_POOL})]
+    assert calls == [(("some query", fake_collection, 3), {"rerank": True, "pool": q.DEFAULT_POOL, "source": None})]
 
 
 def test_main_collection_all_iterates_every_index_dir(tmp_path, monkeypatch):
