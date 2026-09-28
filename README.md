@@ -22,6 +22,8 @@ See the [docs](https://tatopenn-cell.github.io/local-quantum-rag/) for the quick
 ## Documentation
 
 - **[Full guide and API overview](https://tatopenn-cell.github.io/local-quantum-rag/)** — install, quickstart, hybrid retrieval design, `--exact` mode.
+- **[Four-phase methodology](docs/four_phase_methodology.md)** — start here if you want the shape of the whole architecture before the details.
 - [Draft and Verification: a two-phase development methodology](docs/draft_verification_methodology.md) — for human readers, not agent instructions.
+- [Verification layers: Discovery and Evolving Software repositories](docs/verification_layers.md).
 - [Operating constraints of an LLM agent working with this tool](docs/operational_constraints.md).
 - [Case study: a context-reload trigger gap, found and fixed](docs/context_engineering_case_study.md).
