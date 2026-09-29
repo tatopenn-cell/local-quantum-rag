@@ -6,7 +6,7 @@
 [![Python 3.9+](https://img.shields.io/badge/python-3.9%2B-blue.svg)](https://www.python.org/downloads/)
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22914813.svg)](https://doi.org/10.5281/zenodo.22914813)
 
-local-quantum-rag is a small, local, hybrid RAG (retrieval-augmented generation) tool: it indexes your own PDFs and Markdown notes on disk, then answers a question by returning the passages that actually contain the answer — no server, no vector database, no cloud calls beyond downloading the (open) embedding/reranker models once.
+local-quantum-rag is a small, local, hybrid RAG (retrieval-augmented generation) tool: it indexes your own PDFs and Markdown notes on disk, then answers a question by returning the passages that actually contain the answer — no vector database, no cloud calls beyond downloading the (open) embedding/reranker models once. Retrieval runs either as a one-shot CLI call (`query.py`) or, for repeated queries, behind an [optional local server](server.md) that keeps the models warm.
 
 Install it, then follow the four steps below with the two short example documents shipped in the repo.
 

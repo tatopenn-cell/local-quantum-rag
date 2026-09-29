@@ -9,7 +9,7 @@
 [![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.22914813.svg)](https://doi.org/10.5281/zenodo.22914813)
 [![Docs](https://img.shields.io/badge/docs-tatopenn--cell.github.io-blue)](https://tatopenn-cell.github.io/local-quantum-rag/)
 
-A small, local, hybrid RAG tool for grounding technical conversations in your own PDFs and notes, so an AI assistant cites what a document actually says instead of what it remembers. No server, no vector database — see the **[full documentation](https://tatopenn-cell.github.io/local-quantum-rag/)** for how it works, the design philosophy, and the two-phase verification method it exists to support.
+A small, local, hybrid RAG tool for grounding technical conversations in your own PDFs and notes, so an AI assistant cites what a document actually says instead of what it remembers. A CLI (`query.py`) covers everyday use; an optional local FastAPI server (`server.py`) keeps the embedding/reranker models warm across repeated queries. See the **[full documentation](https://tatopenn-cell.github.io/local-quantum-rag/)** for how it works, the design philosophy, and the two-phase verification method it exists to support.
 
 ## Install
 
@@ -19,10 +19,20 @@ pip install -e .
 
 See the [docs](https://tatopenn-cell.github.io/local-quantum-rag/) for the quickstart, the full CLI reference, and the exact-match mode.
 
+## Optional server
+
+```bash
+pip install -e ".[server]"
+python server.py --port 8000
+```
+
+Exposes `/search`, `/search_exact`, `/collections` over HTTP with an in-process, mtime-invalidated cache, so repeated queries skip reloading the embedding/reranker models. See [the server docs](https://tatopenn-cell.github.io/local-quantum-rag/server/) for endpoints, auth (`QUANTUM_RAG_TOKEN`), and deployment notes.
+
 ## Documentation
 
 - **[Full guide and API overview](https://tatopenn-cell.github.io/local-quantum-rag/)** — install, quickstart, hybrid retrieval design, `--exact` mode.
 - **[Four-phase methodology](docs/four_phase_methodology.md)** — start here if you want the shape of the whole architecture before the details.
+- [Optional server](https://tatopenn-cell.github.io/local-quantum-rag/server/) — HTTP endpoints, auth, caching.
 - [Draft and Verification: a two-phase development methodology](docs/draft_verification_methodology.md) — for human readers, not agent instructions.
 - [Verification layers: Discovery and Evolving Software repositories](docs/verification_layers.md).
 - [Operating constraints of an LLM agent working with this tool](docs/operational_constraints.md).

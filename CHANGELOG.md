@@ -1,5 +1,11 @@
 # Changelog
 
+## [Unreleased]
+
+- Fixed `extract_text`'s multi-column reordering: the previous `page.get_text(sort=True)`-based fix (and PyMuPDF's `sort=True` itself) sorts by raw vertical position, which still interleaves genuine left/right columns once they reach similar page heights — verified on a real two-column body page, not just a title block. Now splits blocks by page half, then sorts each half by vertical position, which gives correct column-by-column reading order at the same extraction cost as no sorting at all (measured: ~519ms/doc either way, versus ~1300ms/doc for the sort=True approach it replaces).
+- Fixed `query.py` degrading non-ASCII output (Greek letters, math symbols, accented characters common in physics/math papers) to `?` on every printed result. Reconfigures stdout to UTF-8 instead.
+- Added `server.py`: an optional local FastAPI server wrapping the same retrieval pipeline as `query.py`, with model warmup, an mtime-invalidated in-process cache, optional bearer-token auth, and `/health`, `/version`, `/collections`, `/search`, `/search_exact`, `/cache/invalidate` endpoints. Install with `pip install -e ".[server]"`; see `docs/server.md`.
+
 ## [0.2.1] — 2026-09-26
 
 - Fixed a real bug present in the tagged `0.2.0` release: `search()`'s `--source` filter masked disallowed chunks' scores to `-inf` instead of dropping them, so a query with `top` larger than the real number of matching chunks printed masked/garbage entries alongside the real match. Found via the coverage-driven tests added below, not by manual testing.

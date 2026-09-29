@@ -50,6 +50,7 @@ plugins:
 
 nav:
   - Home: index.md
+  - Optional server: server.md
   - Draft and Verification methodology: draft_verification_methodology.md
   - Four-Phase Methodology: four_phase_methodology.md
   - "Workflows 3-4: Discovery & Evolving Software repos": verification_layers.md

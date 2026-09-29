@@ -23,6 +23,11 @@ docs = [
     "mkdocs-material>=9.5.0",
     "mkdocs-include-markdown-plugin>=6.0.0",
 ]
+server = [
+    "fastapi>=0.110",
+    "uvicorn>=0.29",
+    "pydantic>=2.6",
+]
 
 [project.urls]
 Homepage = "https://github.com/tatopenn-cell/local-quantum-rag"
@@ -31,6 +36,7 @@ Repository = "https://github.com/tatopenn-cell/local-quantum-rag"
 [project.scripts]
 local-quantum-rag-build = "build_index:main"
 local-quantum-rag-query = "query:main"
+local-quantum-rag-server = "server:main"
 
 [tool.setuptools]
-py-modules = ["build_index", "query"]
+py-modules = ["build_index", "query", "server"]
