@@ -12,7 +12,17 @@ import argparse
 import json
 import pickle
 import re
+import sys
 from pathlib import Path
+
+# Force UTF-8 on stdout so Unicode in PDF-extracted text (Greek letters,
+# accented characters, math symbols) displays correctly on modern terminals.
+# On a legacy cp1252 console, errors='replace' degrades to '?' instead of
+# crashing the whole search.
+try:
+    sys.stdout.reconfigure(encoding="utf-8", errors="replace")
+except AttributeError:
+    pass  # Python < 3.7 has no reconfigure
 
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
@@ -126,11 +136,9 @@ def search(query: str, collection: str, top: int, rerank: bool, pool: int, sourc
         label = "cosine"
 
     for rank, i in enumerate(top_idx, 1):
-        # PDF text extraction often carries ligatures (fi, ff, ...) that
-        # crash on Windows' default cp1252 console encoding -- normalize
-        # them away here so this always prints, regardless of terminal.
+        # No more ascii_safe: stdout is UTF-8 (reconfigured at the top of the
+        # file), so Greek letters and accented characters print correctly.
         snippet = chunks[i]["text"][:800]
-        snippet = snippet.encode("ascii", errors="replace").decode("ascii")
         print(f"\n[{collection}] [{rank}] {chunks[i]['source']}  ({label}={shown_scores[i]:.3f}, cosine={cosine_scores[i]:.3f})")
         print("-" * 70)
         print(snippet)
@@ -159,7 +167,7 @@ def search_exact(pattern: str, collection: str, regex: bool, max_hits: int, cont
         hits += 1
         lo = max(0, m.start() - context)
         hi = min(len(text), m.end() + context)
-        snippet = text[lo:hi].encode("ascii", errors="replace").decode("ascii")
+        snippet = text[lo:hi]
         print(f"\n[{collection}] [{hits}] {chunk['source']}  (chunk {i})")
         print("-" * 70)
         print(("..." if lo > 0 else "") + snippet + ("..." if hi < len(text) else ""))
