@@ -1,4 +1,6 @@
-<img src="assets/tao.svg" width="72" height="72" align="right" alt="local-quantum-rag logo">
+<p align="center">
+  <img src="assets/banner.jpg" alt="local-quantum-rag — hybrid RAG grounded in your own PDFs and notes" width="900">
+</p>
 
 # local-quantum-rag
 
