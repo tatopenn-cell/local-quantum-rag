@@ -39,3 +39,4 @@ Exposes `/search`, `/search_exact`, `/collections` over HTTP with an in-process,
 - [Verification layers: Discovery and Evolving Software repositories](docs/verification_layers.md).
 - [Operating constraints of an LLM agent working with this tool](docs/operational_constraints.md).
 - [Case study: a context-reload trigger gap, found and fixed](docs/context_engineering_case_study.md).
+- [BM25 retrieval](docs/bm25.md) - a BM25 index, batch and online, with the +1 IDF of Silajev 2026; measured against the two TF-IDF systems on 12 questions.

@@ -2,6 +2,19 @@
 
 ## [Unreleased]
 
+- Added `bm25_index.py`: `BM25Index(k1=1.2, b=0.75, stop_words=None)`
+  on the Dense-Armor `Tokenizer` (unigrams). Score from Silajev (2026),
+  arXiv:2609.14016: term score and `+1` IDF of page 1, `Score(q,i)` of
+  page 4. Batch `fit` and online `learn_one` end in the same state
+  (tested); `state_dict`/`load_state_dict` write JSON; `k1<0`, `b`
+  outside `[0,1]` and a `stop_words` string raise `ValueError`.
+  `k1=1.2` and `b=0.75` are 'my choice', not a value of the paper.
+- Added `benchmarks/bm25_vs_tfidf.py`: BM25 vs Dense-Armor TF-IDF vs
+  sklearn TF-IDF on 2779 passages and 12 questions. p=0.1250/0.6250/
+  0.5000, A12 0.566/0.556/0.483, all CI contain 0.5, systems differ
+  on 3/12: 12 questions are too few for a claim.
+- Added `docs/bm25.md` and the `[dense]` extra (`dense-armor>=1.1.35`).
+
 ## [0.2.2] — 2026-10-24
 
 - Stage-1 TF-IDF now uses a Snowball-stemmed analyzer (`stem_tok.analyze`, unigrams and bigrams, scikit-learn English stop words) instead of the plain `stop_words="english"` vectorizer. On 12 retrieval questions with a known source paper (`ml_streaming_algoritmi`, 2779 chunks), the correct paper ranks first for 7 questions instead of 5 with TF-IDF only; top-3 and top-5 are unchanged (8 and 9 of 12), and the cross-encoder rerank is unchanged (7, 10, 10). Adds `nltk` as a dependency and `refit_tfidf.py`, which refits only `vectorizer.pkl` and `matrix.pkl` from an existing `chunks.json` (the embeddings stay as they are; the old files are kept as `.bak`). Existing indexes keep working; run `refit_tfidf.py` (or `build_index.py`) to use the stemmed analyzer.
