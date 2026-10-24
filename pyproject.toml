@@ -19,6 +19,7 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
+dense = ["dense-armor>=1.1.35"]
 docs = [
     "mkdocs>=1.6.0",
     "mkdocs-material>=9.5.0",
@@ -40,4 +41,4 @@ local-quantum-rag-query = "query:main"
 local-quantum-rag-server = "server:main"
 
 [tool.setuptools]
-py-modules = ["build_index", "query", "server", "stem_tok"]
+py-modules = ["bm25_index", "build_index", "query", "server", "stem_tok"]
