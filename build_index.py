@@ -38,6 +38,8 @@ import numpy as np
 from sklearn.feature_extraction.text import TfidfVectorizer
 import pickle
 
+from stem_tok import analyze
+
 ROOT = Path(__file__).parent
 PAPERS_DIR = ROOT / "papers"
 INDEX_DIR = ROOT / "index"
@@ -188,7 +190,7 @@ def build_collection(name: str):
         return
 
     texts = [c["text"] for c in all_chunks]
-    vectorizer = TfidfVectorizer(stop_words="english", max_features=20000, ngram_range=(1, 2))
+    vectorizer = TfidfVectorizer(analyzer=analyze, max_features=20000)
     matrix = vectorizer.fit_transform(texts)
     embeddings = get_embedder().encode(texts, normalize_embeddings=True, show_progress_bar=False)
 
