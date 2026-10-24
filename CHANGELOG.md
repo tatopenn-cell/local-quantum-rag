@@ -2,6 +2,10 @@
 
 ## [Unreleased]
 
+## [0.2.2] — 2026-10-24
+
+- Stage-1 TF-IDF now uses a Snowball-stemmed analyzer (`stem_tok.analyze`, unigrams and bigrams, scikit-learn English stop words) instead of the plain `stop_words="english"` vectorizer. On 12 retrieval questions with a known source paper (`ml_streaming_algoritmi`, 2779 chunks), the correct paper ranks first for 7 questions instead of 5 with TF-IDF only; top-3 and top-5 are unchanged (8 and 9 of 12), and the cross-encoder rerank is unchanged (7, 10, 10). Adds `nltk` as a dependency and `refit_tfidf.py`, which refits only `vectorizer.pkl` and `matrix.pkl` from an existing `chunks.json` (the embeddings stay as they are; the old files are kept as `.bak`). Existing indexes keep working; run `refit_tfidf.py` (or `build_index.py`) to use the stemmed analyzer.
+
 - Fixed `extract_text`'s multi-column reordering: the previous `page.get_text(sort=True)`-based fix (and PyMuPDF's `sort=True` itself) sorts by raw vertical position, which still interleaves genuine left/right columns once they reach similar page heights — verified on a real two-column body page, not just a title block. Now splits blocks by page half, then sorts each half by vertical position, which gives correct column-by-column reading order at the same extraction cost as no sorting at all (measured: ~519ms/doc either way, versus ~1300ms/doc for the sort=True approach it replaces).
 - Fixed `query.py` degrading non-ASCII output (Greek letters, math symbols, accented characters common in physics/math papers) to `?` on every printed result. Reconfigures stdout to UTF-8 instead.
 - Added `server.py`: an optional local FastAPI server wrapping the same retrieval pipeline as `query.py`, with model warmup, an mtime-invalidated in-process cache, optional bearer-token auth, and `/health`, `/version`, `/collections`, `/search`, `/search_exact`, `/cache/invalidate` endpoints. Install with `pip install -e ".[server]"`; see `docs/server.md`.
