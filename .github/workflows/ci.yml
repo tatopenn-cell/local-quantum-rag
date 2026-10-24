@@ -17,7 +17,7 @@ jobs:
       - name: Install dependencies
         run: |
           pip install -r requirements.txt
-          pip install -e ".[server]"
+          pip install -e ".[server,dense]"
           pip install pytest pytest-cov httpx
       - name: Run tests with coverage
         run: pytest --cov=. --cov-report=xml
